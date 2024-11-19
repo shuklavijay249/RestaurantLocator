@@ -6,6 +6,7 @@ data class APIResponse(
 )
 
 data class Business(
+    val id: String,
     val name: String,
     val distance: Double,
     val rating: Double,
