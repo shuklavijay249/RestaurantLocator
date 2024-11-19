@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.vijay.restaurant.data.Business
 import com.vijay.restaurant.R
 
@@ -69,7 +70,7 @@ class RestaurantAdapter(private val loadMore: () -> Unit) : RecyclerView.Adapter
             itemView.findViewById<TextView>(R.id.text_rating).text = business.rating.toString()
 
             business.image_url?.let {
-                Glide.with(itemView.context).load(it).into(itemView.findViewById(R.id.image_restaurant))
+                Glide.with(itemView.context).load(it).diskCacheStrategy(DiskCacheStrategy.ALL).into(itemView.findViewById(R.id.image_restaurant))
             } ?: run {
                 Glide.with(itemView.context).load(R.drawable.placeholder).into(itemView.findViewById(
                     R.id.image_restaurant

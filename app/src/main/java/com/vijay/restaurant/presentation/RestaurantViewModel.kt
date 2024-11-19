@@ -25,6 +25,7 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
 
     private var offset = 0
     private var isLastPage = false
+    private var currentLocation: String = "New York City" //  current location
 
     fun clearRestaurants() {
         _restaurants.value = emptyList()
@@ -38,7 +39,7 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
 
 
     fun loadRestaurants(radius: Int, apiKey: String) {
-        loadRestaurants("restaurants", "New York City", radius, apiKey)
+        loadRestaurants("restaurants", currentLocation, radius, apiKey)
     }
 
     fun loadRestaurants(term: String?, location: String?, radius: Int, apiKey: String) {
@@ -47,7 +48,7 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
 
         viewModelScope.launch {
             try {
-                val response = repository.fetchRestaurants(location, radius, offset, apiKey)
+                val response = repository.fetchRestaurants(location ?: currentLocation, radius, offset, apiKey)
                 val currentList = _restaurants.value.toMutableList()
                 currentList.addAll(response.businesses)
                 _restaurants.value = currentList
@@ -68,6 +69,7 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
 
         viewModelScope.launch {
             try {
+                currentLocation = location // Update current location
                 clearRestaurants()
                 val response = repository.fetchRestaurants(location, radius, offset, apiKey)
 

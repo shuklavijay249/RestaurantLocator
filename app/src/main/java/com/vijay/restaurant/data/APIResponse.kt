@@ -38,12 +38,12 @@ data class Location(
             state?.let { addressParts.add(it) }
             zip_code?.let { addressParts.add(it) }
 
-            // If 'display_address' is not null, use it instead of the manual concatenation
+            // If 'display_address' is not null, use it
             display_address?.let {
                 return it.joinToString(", ")
             }
 
-            // If 'display_address' is null, return the manually concatenated address
+            // If 'display_address' is null, return the manually calculated address
             return addressParts.joinToString(", ").takeIf { it.isNotEmpty() }
                 ?: "Address not available"
         }

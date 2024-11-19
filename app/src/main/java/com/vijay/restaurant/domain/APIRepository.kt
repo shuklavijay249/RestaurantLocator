@@ -23,7 +23,7 @@ class APIRepository @Inject constructor(private val apiService: ApiService) {
         val searchLocation = location ?: "New York City"
 
         return try {
-            //Timber.d("Making API call to fetch restaurants.")
+            Timber.d("Making API call to fetch restaurants. ${location}")
 
             val response = apiService.searchRestaurants(
                 location = searchLocation,
@@ -38,6 +38,8 @@ class APIRepository @Inject constructor(private val apiService: ApiService) {
                     val errorBody = e.response()?.errorBody()?.string()
                     val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
                     if (errorResponse.error.code == "LOCATION_NOT_FOUND") {
+                        throw LocationNotFoundException(errorResponse.error.description)
+                    }else if (errorResponse.error.code == "VALIDATION_ERROR") {
                         throw LocationNotFoundException(errorResponse.error.description)
                     }
                 } catch (jsonException: JsonSyntaxException) {
