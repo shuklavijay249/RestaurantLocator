@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:background="@drawable/item_background"
+    android:elevation="4dp"
+    android:clipToPadding="false"
+    android:layout_marginVertical="8dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/image_restaurant"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/placeholder"
+        android:contentDescription="@string/restaurant_image"
+        android:background="@drawable/image_background"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/textColorPrimary"
+        app:layout_constraintStart_toEndOf="@id/image_restaurant"
+        app:layout_constraintTop_toTopOf="@id/image_restaurant"
+        app:layout_constraintEnd_toStartOf="@id/text_rating"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_address"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="@color/textColorSecondary"
+        app:layout_constraintStart_toEndOf="@id/image_restaurant"
+        app:layout_constraintTop_toBottomOf="@id/text_name"
+        app:layout_constraintEnd_toStartOf="@id/text_rating"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_rating"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:textSize="14sp"
+        android:background="@drawable/circle_rating_bg"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textColor="@android:color/white"
+        android:elevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/image_restaurant"
+        app:layout_constraintBottom_toBottomOf="@id/image_restaurant" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
