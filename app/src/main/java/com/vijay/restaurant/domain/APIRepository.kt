@@ -39,6 +39,8 @@ class APIRepository @Inject constructor(private val apiService: ApiService) {
                     val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
                     if (errorResponse.error.code == "LOCATION_NOT_FOUND") {
                         throw LocationNotFoundException(errorResponse.error.description)
+                    }else if (errorResponse.error.code == "VALIDATION_ERROR") {
+                        throw LocationNotFoundException(errorResponse.error.description)
                     }
                 } catch (jsonException: JsonSyntaxException) {
                     Timber.e(jsonException, "Error parsing error response JSON")
