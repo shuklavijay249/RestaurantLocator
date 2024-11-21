@@ -41,7 +41,6 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
     }
 
 
-
     fun loadRestaurants(radius: Int, apiKey: String) {
         loadRestaurants(currentLocation, radius, apiKey)
     }
@@ -51,22 +50,22 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
         loadRestaurants(currentLocation, radius, apiKey)
     }
 
-    private fun loadRestaurants( location: String?, radius: Int, apiKey: String) {
+    private fun loadRestaurants(location: String?, radius: Int, apiKey: String) {
         if (_isLoading.value || isLastPage) return
         _isLoading.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = repository.fetchRestaurants(location ?: currentLocation, radius, offset, apiKey)
-                withContext(Dispatchers.Main) {
-                    val currentList = _restaurants.value.toMutableList()
-                    currentList.addAll(response.businesses)
-                    _restaurants.value = currentList
+                val response =
+                    repository.fetchRestaurants(location ?: currentLocation, radius, offset, apiKey)
 
-                    isLastPage = response.businesses.isEmpty()
-                    offset += response.businesses.size
+                val updatedList = _restaurants.value.toMutableList().apply {
+                    addAll(response.businesses)
                 }
 
+                _restaurants.value = updatedList
+                isLastPage = response.businesses.isEmpty()
+                offset += response.businesses.size
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
@@ -84,12 +83,12 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
                 currentLocation = location // Update current location
                 clearRestaurants()
                 val response = repository.fetchRestaurants(location, radius, offset, apiKey)
-
-                withContext(Dispatchers.Main) {
-                    _restaurants.value = response.businesses // Update with new data
-                    isLastPage = response.businesses.isEmpty()
-                    offset = response.businesses.size
+                val updatedList = _restaurants.value.toMutableList().apply {
+                    addAll(response.businesses)
                 }
+                _restaurants.value = updatedList
+                isLastPage = response.businesses.isEmpty()
+                offset = response.businesses.size
 
             } catch (e: Exception) {
                 _error.value = e.message

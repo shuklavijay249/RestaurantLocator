@@ -43,12 +43,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         adapter = RestaurantAdapter { viewModel.loadRestaurants(radius, API_KEY) }
+        val layoutManager = LinearLayoutManager(this) // Single instance
         binding.recyclerView.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
+            this.layoutManager = layoutManager
             isNestedScrollingEnabled = false
             setItemViewCacheSize(20)
-            layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
 
             //Debounce scroll events to prevent multiple triggers for onScrolled
@@ -60,10 +60,10 @@ class MainActivity : AppCompatActivity() {
                         debounceJob?.cancel()
                         debounceJob = lifecycleScope.launch {
                             delay(200) // Adjust debounce delay
-                            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                             val visibleItemCount = layoutManager.childCount
                             val totalItemCount = layoutManager.itemCount
-                            val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                            val firstVisibleItemPosition =
+                                layoutManager.findFirstVisibleItemPosition()
 
                             if (!viewModel.isLoading.value && !viewModel.isLastPage) {
                                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
@@ -82,13 +82,13 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                viewModel.restaurants.collect { restaurantList ->
-                    adapter.submitList(restaurantList)
-                      //  binding.searchView.visibility = if (restaurantList.isNotEmpty()) View.VISIBLE else View.GONE
+                    viewModel.restaurants.collect { restaurantList ->
+                        adapter.submitList(restaurantList)
+                    }
                 }
-                }
+
                 launch {
-                viewModel.error.collect { errorMessage ->
+                    viewModel.error.collect { errorMessage ->
                         errorMessage?.let {
                             Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                             viewModel.resetError()
@@ -104,18 +104,22 @@ class MainActivity : AppCompatActivity() {
             max = 50
             progress = 5
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                radius = progress * 100
-                binding.radiusValueText.text = "$radius meters"
-            }
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    radius = progress * 100
+                    binding.radiusValueText.text = "$radius meters"
+                }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     viewModel.clearRestaurants()
-                viewModel.loadRestaurants(radius, API_KEY)
-            }
-        })
+                    viewModel.loadRestaurants(radius, API_KEY)
+                }
+            })
         }
 
         binding.swipeRefresh.setOnRefreshListener {
@@ -139,15 +143,15 @@ class MainActivity : AppCompatActivity() {
                 searchLocation?.cancel()
                 searchLocation = lifecycleScope.launch {
                     delay(500)
-               newText?.let {
+                    newText?.let {
                         if (it.length >= 2) {
-                    viewModel.searchRestaurants(it, radius, API_KEY)
-                } else if (it.isBlank()) {
-                    viewModel.clearRestaurants()
-                    viewModel.loadCurrentRestaurant("New York City",radius, API_KEY)
+                            viewModel.searchRestaurants(it, radius, API_KEY)
+                        } else if (it.isBlank()) {
+                            viewModel.clearRestaurants()
+                            viewModel.loadCurrentRestaurant("New York City", radius, API_KEY)
+                        }
+                    }
                 }
-            }
-        }
                 return true
             }
         })
