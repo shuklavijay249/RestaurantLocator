@@ -23,7 +23,7 @@ class APIRepository @Inject constructor(private val apiService: ApiService) {
         val searchLocation = location ?: "New York City"
 
         return try {
-            //Timber.d("Making API call to fetch restaurants.")
+            Timber.d("Making API call to fetch restaurants. ${location}")
 
             val response = apiService.searchRestaurants(
                 location = searchLocation,

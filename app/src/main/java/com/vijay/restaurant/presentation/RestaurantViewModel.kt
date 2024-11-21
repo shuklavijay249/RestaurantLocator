@@ -2,12 +2,14 @@ package com.vijay.restaurant.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vijay.restaurant.domain.APIRepository
 import com.vijay.restaurant.data.Business
+import com.vijay.restaurant.domain.APIRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,7 +26,9 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
     val error: StateFlow<String?> get() = _error
 
     private var offset = 0
-    private var isLastPage = false
+    var isLastPage = false
+        private set
+    private var currentLocation: String = "New York City"
 
     fun clearRestaurants() {
         _restaurants.value = emptyList()
@@ -38,20 +42,28 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
 
 
     fun loadRestaurants(radius: Int, apiKey: String) {
-        loadRestaurants("restaurants", "New York City", radius, apiKey)
+        loadRestaurants(currentLocation, radius, apiKey)
     }
 
-    fun loadRestaurants(term: String?, location: String?, radius: Int, apiKey: String) {
+    fun loadCurrentRestaurant(location: String, radius: Int, apiKey: String) {
+        currentLocation = location
+        loadRestaurants(currentLocation, radius, apiKey)
+    }
+
+    private fun loadRestaurants(location: String?, radius: Int, apiKey: String) {
         if (_isLoading.value || isLastPage) return
         _isLoading.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = repository.fetchRestaurants(location, radius, offset, apiKey)
-                val currentList = _restaurants.value.toMutableList()
-                currentList.addAll(response.businesses)
-                _restaurants.value = currentList
+                val response =
+                    repository.fetchRestaurants(location ?: currentLocation, radius, offset, apiKey)
 
+                val updatedList = _restaurants.value.toMutableList().apply {
+                    addAll(response.businesses)
+                }
+
+                _restaurants.value = updatedList
                 isLastPage = response.businesses.isEmpty()
                 offset += response.businesses.size
             } catch (e: Exception) {
@@ -66,14 +78,18 @@ class RestaurantViewModel @Inject constructor(private val repository: APIReposit
         if (_isLoading.value) return
         _isLoading.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                currentLocation = location // Update current location
                 clearRestaurants()
                 val response = repository.fetchRestaurants(location, radius, offset, apiKey)
-
-                _restaurants.value = response.businesses // Update with new data
+                val updatedList = _restaurants.value.toMutableList().apply {
+                    addAll(response.businesses)
+                }
+                _restaurants.value = updatedList
                 isLastPage = response.businesses.isEmpty()
                 offset = response.businesses.size
+
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
